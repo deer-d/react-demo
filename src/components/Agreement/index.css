@@ -1,0 +1,12 @@
+.agreement {
+  padding: 10%;
+}
+.agreement .head-title {
+  color: #404040;
+  font-size: 24px;
+  text-align: center;
+}
+.checked {
+  text-align: center;
+  margin: 15px 0;
+}

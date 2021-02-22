@@ -1,0 +1,40 @@
+@import '../../../src/css/_base';
+
+.page {
+  margin-top: px2rem(20);
+}
+
+.step-box {
+  overflow-y: scroll;
+  & :global(.am-steps-item-title) {
+    font-size: 12px;
+  }
+}
+
+.custom-step-icon {
+  width: px2rem(22);
+  height: px2rem(22);
+  border: px2rem(1) solid #bbb ;
+  border-radius: 50%;
+  @include layout-flex(row, center, center);
+  font-size: px2rem(14);
+}
+.step-icon-wait {
+  border: px2rem(1) solid #bbb;
+  color: #bbb;
+}
+.step-icon-current {
+  border: px2rem(1) solid #108ee9;
+  color: white;
+  background: #108ee9;
+}
+.step-icon-finish {
+  border: px2rem(1) solid #108ee9;
+  color: #108ee9;
+}
+
+
+.btn-box {
+  @include layout-flex(row, space-around, center);
+}
+

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册页</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <script src="/adatation.js"></script>
+    <script>
+        //动态加载script
+        function loadScript (src, cb) {
+            var head = document.head || document.getElementsByTagName('head')[0]
+            var script = document.createElement('script')
+
+            cb = cb || function () {}
+
+            script.type = 'text/javascript'
+            script.src = src
+
+            if (!('onload' in script)) {
+                script.onreadystatechange = function () {
+                    if (this.readyState !== 'complete' && this.readyState !== 'loaded') return
+                    this.onreadystatechange = null
+                    cb(script)
+                }
+            }
+
+            script.onload = function () {
+                this.onload = null
+                cb(script)
+            }
+
+            head.appendChild(script)
+        }
+        //动态加载vconcole
+        // if (!window.location.href.includes("https://sh.zhilun.com") && window.location.href.includes('/cpcn/h5/')) {
+        //     console.log('href =================》', window.location.href);
+        //     loadScript('https://cdn.bootcss.com/vConsole/3.3.0/vconsole.min.js', function () {
+        //         var vConsole = new VConsole();
+        //         console.log('vConsole is import');
+        //     })
+        // };
+    </script>
+</head>
+<body ondragstart="return false">
+<div id="app"></div>
+</body>

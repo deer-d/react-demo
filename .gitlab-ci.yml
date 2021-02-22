@@ -1,0 +1,138 @@
+stages:
+  - build
+  - deploy
+  - notify
+  - failure_handler
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+before_script:
+  - git submodule foreach git pull origin master
+
+################### 功能开发阶段 start ####################
+
+### 代码构建，镜像上传 #####
+build:
+  stage: build
+  script:
+    - sh npm-shell/build.sh
+  only:
+    refs:
+      - /^release\/*/
+      - /^hotfix\/*/
+      - master
+      - /^feature\/*/
+  tags:
+    - build-runner
+
+## 部署联调环境-major（基于feature/major_*分支）
+deploy-integration-major: &deploy_feature
+  stage: deploy
+  environment:
+    name: integration-major
+  script:
+    - sh npm-shell/deploy-integration-major.sh
+  variables:
+  only:
+    refs:
+      - /^feature\/major_*/
+  tags:
+    - deploy-integration-runner
+## 部署联调环境-minor （基于feature/minor_*分支）
+deploy-integration-minor:
+  <<: *deploy_feature
+  script:
+    - sh npm-shell/deploy-integration-minor.sh
+  environment:
+    name: integration-minor
+  only:
+    refs:
+      - /^feature\/minor_*/
+  tags:
+    - deploy-integration-runner
+################### 功能开发阶段 end ####################
+
+################### 测试阶段 start ####################
+## 部署测试环境-major (基于 release/major_* )
+deploy-qa-major:
+  <<: *deploy_feature
+  script:
+    - sh npm-shell/deploy-qa-major.sh
+  environment:
+    name: qa-major
+  only:
+    refs:
+      - /^release\/major_*/
+  tags:
+    - deploy-qa-runner
+
+## 部署测试环境-minor (基于 release/minor_* )
+deploy-qa-minor:
+  <<: *deploy_feature
+  script:
+    - sh npm-shell/deploy-qa-minor.sh
+  environment:
+    name: qa-minor
+  only:
+    refs:
+      - /^release\/minor_*/
+  tags:
+    - deploy-qa-runner
+
+## 部署准生产环境
+deploy-uat:
+  <<: *deploy_feature
+  script:
+    - sh npm-shell/deploy-uat.sh
+  environment:
+    name: uat
+  only:
+    refs:
+      - /^hotfix\/*/
+      - release/major_paymentAndAgreement
+  tags:
+    - deploy-uat-runner
+################### 测试阶段 end ####################
+
+################### 上线阶段 start ####################
+## 部署生产环境
+deploy-prod:
+  <<: *deploy_feature
+  when: manual
+  script:
+    - sh npm-shell/deploy-prod.sh
+  environment:
+    name: prod
+  only:
+    refs:
+      - master
+  tags:
+    - prod-runner
+################### 上线阶段 end ####################
+
+########### 成功通知 ##########
+notify:
+  stage: notify
+  script:
+    - sh npm-shell/notify.sh
+  tags:
+    - build-runner
+  only: &notify_refs
+    refs:
+      - /^feature\/major_*/
+      - /^feature\/minor_*/
+      - /^release\/minor_*/
+      - /^release\/major_*/
+      - /^hotfix\/*/
+      - master
+##### 任务失败处理
+failuer_handler:
+  stage: failure_handler
+  when: on_failure
+  script:
+    - sh npm-shell/failure_handler.sh
+  tags:
+    - build-runner
+  only:
+    <<: *notify_refs
